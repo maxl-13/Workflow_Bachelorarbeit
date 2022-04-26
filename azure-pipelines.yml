@@ -1,0 +1,42 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- script: dotnet restore $(solution)
+  displayName: Restore
+
+- script: dotnet build $(solution) -c Release
+  displayName: Build Release
+
+- script: dotnet pack $(solution) -c Release -o output\
+  displayName: Pack
+
+- script: dotnet nuget add source --username maxl-13 --password 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 --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
+- script: dotnet nuget push output\*.nupkg -k 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 --source "github"
+  displayName: Nuget Push
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'GitHub connection 1'
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'userSpecifiedTag'
+    tag: 'release-1'
+    title: 'Test Asset test'
+    changeLogCompareToRelease: 'lastFullRelease'
+    changeLogType: 'commitBased'
+    assets: 'output\*'
+
