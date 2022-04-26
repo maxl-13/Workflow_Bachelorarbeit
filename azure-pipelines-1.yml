@@ -58,6 +58,11 @@ jobs:
     displayName: Install Reportgenerator
   - script: reportgenerator -reports:".\SimpleCalculations\SimpleCalculations.Tests\TestResults\**\coverage.cobertura.xml" -targetdir:"./Coverage" -reporttypes:Html
     displayName: Create Report
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'Cobertura'
+      summaryFileLocation: '.\SimpleCalculations\SimpleCalculations.Tests\TestResults\**\coverage.cobertura.xml'
 # stage B runs if A fails
 #- stage: B
 #  condition: tag
