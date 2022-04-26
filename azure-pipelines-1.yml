@@ -17,6 +17,9 @@ jobs:
     buildPlatform: 'Any CPU'
     buildConfiguration: 'Debug'
   steps:
+  - task: NuGetToolInstaller@1
+    inputs:
+      versionSpec: latest
   - task: VSBuild@1
     inputs:
       solution: '$(solution)'
@@ -34,6 +37,10 @@ jobs:
     disableable.coverage: true
 
   steps:
+  - task: NuGetToolInstaller@1
+    inputs:
+      versionSpec: latest
+      
   - script: rktracer -vs -on '$(solution)'
     displayName: RKTracer
   - task: VSBuild@1
