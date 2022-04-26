@@ -24,12 +24,12 @@ steps:
 - script: dotnet pack $(solution) -c Release -o output\
   displayName: Pack
 
-- script: dotnet nuget add source --username maxl-13 --password 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 --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
-- script: dotnet nuget push output\*.nupkg -k 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 --source "github"
+- script: dotnet nuget add source --username maxl-13 --password $(GH_Secret) --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
+- script: dotnet nuget push output\*.nupkg -k $(GH_Secret) --source "github"
   displayName: Nuget Push
 - task: GitHubRelease@1
   inputs:
-    gitHubConnection: 'GitHub connection 1'
+    gitHubConnection: 'NugetPush_Release'
     repositoryName: '$(Build.Repository.Name)'
     action: 'create'
     target: '$(Build.SourceVersion)'
