@@ -10,7 +10,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: './SimpleCalculations.sln'
+  solution: './SimpleCalculations/SimpleCalculations.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
