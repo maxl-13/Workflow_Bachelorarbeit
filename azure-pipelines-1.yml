@@ -18,15 +18,15 @@ jobs:
     buildConfiguration: 'Debug'
   steps:
   - task: NuGetToolInstaller@1
-  - task: NuGetCommand@2
-    inputs:
-      restoreSolution: '$(solution)'
-  - task: VSBuild@1
-    inputs:
-      solution: '$(solution)'
-      platform: '$(buildPlatform)'
-      configuration: '$(buildConfiguration)'
-      restoreNugetPackages: true
+#  - task: NuGetCommand@2
+#    inputs:
+#      restoreSolution: '$(solution)'
+#  - task: VSBuild@1
+#    inputs:
+#      solution: '$(solution)'
+#      platform: '$(buildPlatform)'
+#      configuration: '$(buildConfiguration)'
+#      restoreNugetPackages: true
 
 - job: BuildRelease
   displayName: Build Release
@@ -43,22 +43,21 @@ jobs:
     inputs:
       restoreSolution: '$(solution)'
       
-  - script: rktracer -vs -on '$(solution)'
-    displayName: RKTracer
+
   - task: VSBuild@1
     inputs:
       solution: '$(solution)'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
+      msbuildArgs: '/p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourceDirectory)/TestResults/Coverage/'
   
-  - task: VSTest@2
-    inputs:
-      platform: '$(buildPlatform)'
-      configuration: '$(buildConfiguration)'
+  - script: dotnet test $(solution) -c Release --collect:"XPlat Code Coverage"
+    displayName: Test
 
-  - script: rkresults -xml -nolaunch
-    displayName: RKResults
-
+  - script: dotnet tool install -g dotnet-reportgenerator-globaltool
+    displayName: Install Reportgenerator
+  - script: reportgenerator -reports:".\SimpleCalculations\SimpleCalculations.Tests\TestResults\147a8bc9-1280-4f49-9d28-9310f15b8673\coverage.cobertura.xml" -targetdir:"./Coverage" -reporttypes:Html
+    displayName: Create Report
 # stage B runs if A fails
 #- stage: B
 #  condition: tag
