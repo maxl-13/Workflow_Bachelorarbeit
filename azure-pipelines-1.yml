@@ -56,13 +56,16 @@ jobs:
 
   - script: dotnet tool install -g dotnet-reportgenerator-globaltool
     displayName: Install Reportgenerator
-  - script: reportgenerator -reports:".\SimpleCalculations\SimpleCalculations.Tests\TestResults\**\coverage.cobertura.xml" -targetdir:"./Coverage" -reporttypes:Html
+ 
+  - script: reportgenerator -reports:".\SimpleCalculations\SimpleCalculations.Tests\TestResults\**\coverage.cobertura.xml" -targetdir:$(Build.SourcesDirectory)/coverlet/reports -reporttypes:"Cobertura"
     displayName: Create Report
 
   - task: PublishCodeCoverageResults@1
+    displayName: Publish Code Coverage to Azure Dashboard
     inputs:
       codeCoverageTool: 'Cobertura'
-      summaryFileLocation: '.\SimpleCalculations\SimpleCalculations.Tests\TestResults\**\coverage.cobertura.xml'
+      summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
+
 # stage B runs if A fails
 #- stage: B
 #  condition: tag
