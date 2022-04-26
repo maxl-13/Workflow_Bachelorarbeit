@@ -18,8 +18,7 @@ jobs:
     buildConfiguration: 'Debug'
   steps:
   - task: NuGetToolInstaller@1
-    inputs:
-      versionSpec: latest
+
   - task: VSBuild@1
     inputs:
       solution: '$(solution)'
