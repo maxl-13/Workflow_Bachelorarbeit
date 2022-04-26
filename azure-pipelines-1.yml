@@ -49,7 +49,7 @@ jobs:
       solution: '$(solution)'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
-      msbuildArgs: '/p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourceDirectory)/TestResults/Coverage/'
+      #msbuildArgs: '/p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourceDirectory)/TestResults/Coverage/'
   
   - script: dotnet test $(solution) -c Release --collect:"XPlat Code Coverage"
     displayName: Test
