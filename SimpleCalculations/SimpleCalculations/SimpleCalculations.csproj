@@ -4,6 +4,11 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <Authors>maxl-13</Authors>
+    <Company>FH Wiener Neustadt</Company>
+    <PackageDescription>NuGet package for simple Simple Calculations</PackageDescription>
+    <RepositoryUrl>https://github.com/maxl-13/Workflow_Bachelorarbeit.git</RepositoryUrl>
   </PropertyGroup>
 
 </Project>
