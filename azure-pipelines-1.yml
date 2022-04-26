@@ -56,7 +56,7 @@ jobs:
 
   - script: dotnet tool install -g dotnet-reportgenerator-globaltool
     displayName: Install Reportgenerator
-  - script: reportgenerator -reports:".\SimpleCalculations\SimpleCalculations.Tests\TestResults\147a8bc9-1280-4f49-9d28-9310f15b8673\coverage.cobertura.xml" -targetdir:"./Coverage" -reporttypes:Html
+  - script: reportgenerator -reports:".\SimpleCalculations\SimpleCalculations.Tests\TestResults\**\coverage.cobertura.xml" -targetdir:"./Coverage" -reporttypes:Html
     displayName: Create Report
 # stage B runs if A fails
 #- stage: B
