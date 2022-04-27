@@ -73,7 +73,7 @@ jobs:
 - job: Publish
   displayName: NugetPush + GitHub Release
   dependsOn: BuildRelease
-  condition: contains(variables['Build.SourceBranch'], 'refs/tags/release-'), contains(variables['Build.SourceBranch'], 'refs/heads/master')
+  condition: or(contains(variables['Build.SourceBranch'], 'refs/tags/release-'), contains(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
     solution: '.\SimpleCalculations\SimpleCalculations.sln'
     buildPlatform: 'Any CPU'
@@ -98,22 +98,6 @@ jobs:
       title: 'Test Asset test'
       changeLogCompareToRelease: 'lastFullRelease'
       changeLogType: 'commitBased'
-      assets: 'output\*'
-
-
-
-
-
-
-
-
-# stage B runs if A fails
-#- stage: B
-#  condition: tag
-
-# stage C runs if B succeeds
-#- stage: C
-#  dependsOn:
-#  - A
-#  - B
-#  condition: succeeded('B')
+      assets: |
+        'output\*'
+        $(Build.ArtifactStagingDirectory)/*
