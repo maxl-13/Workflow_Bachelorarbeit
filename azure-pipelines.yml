@@ -9,7 +9,7 @@ trigger:
     - '*'
   tags:
     include:
-    - 'v*'
+    - '*'
 
 pool:
   vmImage: windows-latest
