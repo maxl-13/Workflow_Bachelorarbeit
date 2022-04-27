@@ -84,7 +84,7 @@ jobs:
   dependsOn: BuildRelease
   condition: contains(variables['Build.SourceBranch'], 'refs/tags/v')
   variables:
-    solution: '.\**\*.sln'
+    solution: '.\SimpleCalculations\SimpleCalculations.sln'
     buildPlatform: 'Any CPU'
     buildConfiguration: 'Release'
     disableable.coverage: true
