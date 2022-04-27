@@ -22,17 +22,19 @@ jobs:
     buildPlatform: 'Any CPU'
     buildConfiguration: 'Debug'
   steps:
+
   - task: NuGetToolInstaller@1
+    displayName: Install NuGet
+
   - task: NuGetCommand@2
     inputs:
       restoreSolution: '$(solution)'
+
   - task: VSBuild@1
     inputs:
       solution: '$(solution)'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
-
-
 
 - job: BuildRelease
   displayName: Build Release
@@ -44,10 +46,7 @@ jobs:
     disableable.coverage: true
 
   steps:
-  - task: NuGetToolInstaller@1
-  - task: NuGetCommand@2
-    inputs:
-      restoreSolution: '$(solution)'
+
       
 
   - task: VSBuild@1
