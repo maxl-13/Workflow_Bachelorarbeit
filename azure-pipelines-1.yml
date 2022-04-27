@@ -12,6 +12,7 @@ pool:
 jobs:
 - job: BuildDebug
   displayName: Build Debug
+  #condition: contains(variables['Build.SourceBranch'], 'refs/tags/release-')
   variables:
     solution: '.\SimpleCalculations\SimpleCalculations.sln'
     buildPlatform: 'Any CPU'
