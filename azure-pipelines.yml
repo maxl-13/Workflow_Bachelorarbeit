@@ -97,7 +97,11 @@ jobs:
     displayName: Restore Solution
     inputs:
       restoreSolution: '$(solution)'
-  - script: dotnet pack 'SimpleCalculations\SimpleCalculations\SimpleCalculations.csproj' -c $(buildConfiguration) -o output\
+
+  - script: dotnet test '$(solution)' -c $(buildConfiguration)
+    displayName: Pack
+
+  - script: dotnet pack '$(solution)' -c $(buildConfiguration) -o output\
     displayName: Pack
 
   - script: dotnet nuget add source --username maxl-13 --password $(GH_Secret) --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
