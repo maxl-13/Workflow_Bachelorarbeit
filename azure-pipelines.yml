@@ -41,7 +41,7 @@ jobs:
 - job: BuildRelease
   displayName: Build Release
   dependsOn: BuildDebug
-  condition: and(contains(variables['Build.SourceBranch'], 'refs/heads/release-'), contains(variables['Build.SourceBranch'], 'refs/heads/main'), contains(variables['Build.SourceBranch'], 'refs/tags/v'))
+  condition: or(contains(variables['Build.SourceBranch'], 'refs/heads/release-'), contains(variables['Build.SourceBranch'], 'refs/heads/main'), contains(variables['Build.SourceBranch'], 'refs/tags/v'))
   variables:
     solution: '.\SimpleCalculations\SimpleCalculations.sln'
     buildPlatform: 'Any CPU'
