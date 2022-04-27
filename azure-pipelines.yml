@@ -82,7 +82,7 @@ jobs:
 - job: Publish
   displayName: NugetPush + GitHub Release
   dependsOn: BuildRelease
-  condition: contains(variables['Build.SourceBranch'], 'refs/heads/release-')
+  condition: contains(variables['Build.SourceBranch'], 'refs/tags/v')
   variables:
     solution: '.\**\*.sln'
     buildPlatform: 'Any CPU'
