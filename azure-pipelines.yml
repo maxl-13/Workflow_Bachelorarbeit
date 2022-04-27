@@ -41,7 +41,7 @@ jobs:
 - job: BuildRelease
   displayName: Build Release
   dependsOn: BuildDebug
-  condition: or(contains(variables['Build.SourceBranch'], 'refs/heads/release-'), contains(variables['Build.SourceBranch'], 'refs/heads/main'), contains(variables['Build.SourceBranch'], 'refs/tags/v'))
+  condition: and(contains(variables['Build.SourceBranch'], 'refs/heads/release-'), contains(variables['Build.SourceBranch'], 'refs/heads/main'), contains(variables['Build.SourceBranch'], 'refs/tags/v'))
   variables:
     solution: '.\SimpleCalculations\SimpleCalculations.sln'
     buildPlatform: 'Any CPU'
@@ -90,6 +90,13 @@ jobs:
     disableable.coverage: true
 
   steps:
+  - task: NuGetToolInstaller@1
+    displayName: Install NuGet
+
+  - task: NuGetCommand@2
+    displayName: Restore Solution
+    inputs:
+      restoreSolution: '$(solution)'
   - script: dotnet pack '.\SimpleCalculations\SimpleCalculations.sln' -c $(buildConfiguration) -o output\
     displayName: Pack
 
