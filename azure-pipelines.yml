@@ -1,42 +1,119 @@
-# ASP.NET
-# Build and test ASP.NET projects.
-# Add steps that publish symbols, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
 
 trigger:
-- main2
+  branches:
+    include:
+    - main
+  tags:
+    include:
+    - 'release-*'
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: windows-latest
 
-variables:
-  solution: './SimpleCalculations/SimpleCalculations.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+jobs:
+- job: BuildDebug
+  displayName: Build Debug
+  variables:
+    solution: '.\SimpleCalculations\SimpleCalculations.sln'
+    buildPlatform: 'Any CPU'
+    buildConfiguration: 'Debug'
+  steps:
+  - task: NuGetToolInstaller@1
+#  - task: NuGetCommand@2
+#    inputs:
+#      restoreSolution: '$(solution)'
+#  - task: VSBuild@1
+#    inputs:
+#      solution: '$(solution)'
+#      platform: '$(buildPlatform)'
+#      configuration: '$(buildConfiguration)'
+#      restoreNugetPackages: true
 
-steps:
-- script: dotnet restore $(solution)
-  displayName: Restore
-
-- script: dotnet build $(solution) -c Release
+- job: BuildRelease
   displayName: Build Release
+  dependsOn: BuildDebug
+  variables:
+    solution: '.\SimpleCalculations\SimpleCalculations.sln'
+    buildPlatform: 'Any CPU'
+    buildConfiguration: 'Release'
+    disableable.coverage: true
 
-- script: dotnet pack $(solution) -c Release -o output\
-  displayName: Pack
+  steps:
+  - task: NuGetToolInstaller@1
+  - task: NuGetCommand@2
+    inputs:
+      restoreSolution: '$(solution)'
+      
 
-- script: dotnet nuget add source --username maxl-13 --password $(GH_Secret) --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
-- script: dotnet nuget push output\*.nupkg -k $(GH_Secret) --source "github"
-  displayName: Nuget Push
-- task: GitHubRelease@1
-  inputs:
-    gitHubConnection: 'NugetPush_Release'
-    repositoryName: '$(Build.Repository.Name)'
-    action: 'create'
-    target: '$(Build.SourceVersion)'
-    tagSource: 'userSpecifiedTag'
-    tag: 'release-1'
-    title: 'Test Asset test'
-    changeLogCompareToRelease: 'lastFullRelease'
-    changeLogType: 'commitBased'
-    assets: 'output\*'
+  - task: VSBuild@1
+    inputs:
+      solution: '$(solution)'
+      platform: '$(buildPlatform)'
+      configuration: '$(buildConfiguration)'
+  
+  - script: dotnet test $(solution) -c Release --collect:"XPlat Code Coverage"
+    displayName: Test
 
+  - script: dotnet tool install -g dotnet-reportgenerator-globaltool
+    displayName: Install Reportgenerator
+ 
+  - script: reportgenerator -reports:".\SimpleCalculations\SimpleCalculations.Tests\TestResults\**\coverage.cobertura.xml" -targetdir:$(Build.SourcesDirectory)/coverlet/reports -reporttypes:"Cobertura"
+    displayName: Create Report
+
+  - task: PublishCodeCoverageResults@1
+    displayName: Publish Code Coverage
+    inputs:
+      codeCoverageTool: 'Cobertura'
+      summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
+
+- job: Publish
+  displayName: NugetPush + GitHub Release
+  dependsOn: BuildRelease
+  condition: contains(variables['Build.SourceBranch'], 'refs/tags/release-'), contains(variables['Build.SourceBranch'], 'refs/heads/master')
+  variables:
+    solution: '.\SimpleCalculations\SimpleCalculations.sln'
+    buildPlatform: 'Any CPU'
+    buildConfiguration: 'Release'
+    disableable.coverage: true
+
+  steps:
+  - script: dotnet pack $(solution) -c $(buildConfiguration) -o output\
+    displayName: Pack
+
+  - script: dotnet nuget add source --username maxl-13 --password $(GH_Secret) --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
+  - script: dotnet nuget push output\*.nupkg -k $(GH_Secret) --source "github"
+    displayName: Nuget Push
+  - task: GitHubRelease@1
+    inputs:
+      gitHubConnection: 'NugetPush_Release'
+      repositoryName: '$(Build.Repository.Name)'
+      action: 'create'
+      target: '$(Build.SourceVersion)'
+      tagSource: 'userSpecifiedTag'
+      tag: 'release-1'
+      title: 'Test Asset test'
+      changeLogCompareToRelease: 'lastFullRelease'
+      changeLogType: 'commitBased'
+      assets: 'output\*'
+
+
+
+
+
+
+
+
+# stage B runs if A fails
+#- stage: B
+#  condition: tag
+
+# stage C runs if B succeeds
+#- stage: C
+#  dependsOn:
+#  - A
+#  - B
+#  condition: succeeded('B')
