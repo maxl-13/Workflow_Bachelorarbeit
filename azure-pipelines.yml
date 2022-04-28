@@ -98,7 +98,11 @@ jobs:
     inputs:
       restoreSolution: '$(solution)'
 
-  - script: dotnet test '$(solution)' -c $(buildConfiguration)
+  - script: pwd
+
+  - script: ls
+
+  - script: dotnet build '$(solution)' -c $(buildConfiguration)
     displayName: Pack
 
   - script: dotnet pack '$(solution)' -c $(buildConfiguration) -o output\
