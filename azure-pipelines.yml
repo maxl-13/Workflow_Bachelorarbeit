@@ -108,8 +108,8 @@ jobs:
   - script: dotnet pack $(solution) -c $(buildConfiguration) -o output\
     displayName: Pack
 
-  - script: dotnet nuget add source --username maxl-13 --password $(GH_Secret) --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
-  - script: dotnet nuget push output\*.nupkg -k $(GH_Secret) --source "github"
+  - script: dotnet nuget add source --username maxl-13 --password $($(GH_Publish)) --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
+  - script: dotnet nuget push output\*.nupkg -k $($(GH_Publish)) --source "github"
     displayName: Nuget Push
   - task: GitHubRelease@1
     inputs:
