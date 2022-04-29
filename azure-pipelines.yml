@@ -105,7 +105,7 @@ jobs:
   - script: dotnet build $(solution) -c $(buildConfiguration)
     displayName: Pack
 
-  - script: dotnet pack $(solution) -c $(buildConfiguration) -o output\
+  - script: dotnet pack $(solution) -c $(buildConfiguration) -o output/
     displayName: Pack
 
   - script: dotnet nuget add source --username maxl-13 --password $(GH_Publish) --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
@@ -118,9 +118,9 @@ jobs:
       action: 'create'
       target: '$(Build.SourceVersion)'
       tagSource: 'gitTag'
-      title: Build.SourceBranchName
+      title: '$(Build.SourceBranchName)'
       changeLogCompareToRelease: 'lastFullRelease'
       changeLogType: 'commitBased'
       assets: |
-        'output\*'
-        $(Build.ArtifactStagingDirectory)/*
+        'output/*'
+        '$(Build.ArtifactStagingDirectory)/*'
