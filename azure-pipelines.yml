@@ -68,6 +68,7 @@ jobs:
     inputs:
       codeCoverageTool: 'Cobertura'
       summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
+      reportDirectory: $(Build.ArtifactStagingDirectory)/
 
   - script: ls 
 
