@@ -15,7 +15,7 @@ jobs:
 - job: BuildDebug
   displayName: Build Debug
   variables:
-    solution: '\**\*.sln'
+    solution: '.\SimpleCalculations\SimpleCalculations.sln'
     buildPlatform: 'Any CPU'
     buildConfiguration: 'Debug'
   
@@ -24,10 +24,10 @@ jobs:
   - task: NuGetToolInstaller@1
     displayName: Install NuGet
   
-  - script: dotnet restore $(solution)
+  - script: dotnet restore '$(solution)'
     displayName: Restore
 
-  - script: dotnet build $(solution) -c $(buildConfiguration) --no-restore
+  - script: dotnet build $(solution) -c '$(buildConfiguration)'' --no-restore
     displayName: Build
 
   - script: dotnet test $(solution) -c $(buildConfiguration) --no-build
