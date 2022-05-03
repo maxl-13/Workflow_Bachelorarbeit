@@ -4,13 +4,9 @@
   "publicReleaseRefSpec": [
     "^refs/heads/master$",
     "^refs/heads/v\\d+(?:\\.\\d+)?$",
-    "^refs/tag/$"
+    "^refs/tags/"
   ],
-  "cloudBuild": {
-    "buildNumber": {
-      "enabled": true
-    }
-  },
+  
   "release": {
     "branchName": "release-{version}",
     "versionIncrement": "build",
