@@ -35,31 +35,27 @@ jobs:
 - job: BuildRelease
   displayName: Build Release
   dependsOn: BuildDebug
-  condition: and(succeeded(), or(contains(variables['Build.SourceBranch'], 'refs/heads/release-'), contains(variables['Build.SourceBranch'], 'refs/heads/main'), contains(variables['Build.SourceBranch'], 'refs/tags/v')))
+  condition: >
+    and(succeeded(), 
+    or(contains(variables['Build.SourceBranch'], 
+    'refs/heads/release-'), contains(variables['Build.SourceBranch'], 
+    'refs/heads/main'), contains(variables['Build.SourceBranch'], 'refs/tags/v')))
   variables:
     solution: '.\SimpleCalculations\SimpleCalculations.sln'
-    buildPlatform: 'Any CPU'
     buildConfiguration: 'Release'
-    disableable.coverage: true
 
   steps:
   - task: NuGetToolInstaller@1
     displayName: Install NuGet
 
-  - task: NuGetCommand@2
-    displayName: Restore Solution
-    inputs:
-      restoreSolution: '$(solution)'      
+  - script: dotnet restore $(solution)
+    displayName: Restore
 
-  - task: VSBuild@1
-    displayName: Build $(buildConfiguration)
-    inputs:
-      solution: '$(solution)'
-      platform: '$(buildPlatform)'
-      configuration: '$(buildConfiguration)'
-  
-  - script: dotnet test $(solution) -c $(buildConfiguration) --collect:"XPlat Code Coverage"
-    displayName: Test $(buildConfiguration)
+  - script: dotnet build $(solution) -c $(buildConfiguration) --no-restore
+    displayName: Build
+ 
+  - script: dotnet test $(solution) -c $(buildConfiguration) --collect:"XPlat Code Coverage" --no-build
+    displayName: Test 
 
   - script: dotnet tool install -g dotnet-reportgenerator-globaltool
     displayName: Install Reportgenerator
@@ -79,9 +75,7 @@ jobs:
   condition: and(succeeded(), contains(variables['Build.SourceBranch'], 'refs/tags/v'))
   variables:
     solution: '.\SimpleCalculations\SimpleCalculations.sln'
-    buildPlatform: 'Any CPU'
     buildConfiguration: 'Release'
-    disableable.coverage: true
 
   steps:
   - task: NuGetToolInstaller@1
@@ -91,13 +85,6 @@ jobs:
     displayName: Restore Solution
     inputs:
       restoreSolution: '$(solution)'
-
-  - script: pwd
-
-  - script: ls
-
-  - script: dotnet build $(solution) -c $(buildConfiguration)
-    displayName: Build $(buildConfiguration)
 
   - script: dotnet pack $(solution) -c $(buildConfiguration) -o output/
     displayName: Pack
@@ -117,4 +104,3 @@ jobs:
       changeLogType: 'commitBased'
       assets: |
         'output/*'
-        '$(Build.ArtifactStagingDirectory)/*'
