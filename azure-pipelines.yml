@@ -1,7 +1,7 @@
 trigger:
-  branches:
-    include:
-    - '*'
+  #branches:
+  #  include:
+  #  - '*'
   tags:
     include:
     - '*'
@@ -68,13 +68,7 @@ jobs:
     inputs:
       codeCoverageTool: 'Cobertura'
       summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
-      reportDirectory: $(Build.ArtifactStagingDirectory)/
 
-  - script: ls 
-
-  - script: pwd
-
-  - script: ls $(Build.ArtifactStagingDirectory)/
 
 - job: Publish
   displayName: NugetPush + GitHub Release
@@ -100,6 +94,9 @@ jobs:
   - script: dotnet nuget push output\*.nupkg -k $(GH_Publish) --source "github"
     displayName: Nuget Push
 
+  - task: DownloadPipelineArtifact@2
+      path: output\
+
   - task: GitHubRelease@1
     inputs:
       gitHubConnection: 'NugetPush_Release'
@@ -113,5 +110,3 @@ jobs:
       assets: |
         output\*
         $(Build.ArtifactStagingDirectory)/*
-
-  - script: ls $(Build.ArtifactStagingDirectory)
