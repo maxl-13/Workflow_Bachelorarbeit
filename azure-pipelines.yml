@@ -110,4 +110,4 @@ jobs:
       changeLogType: 'commitBased'
       assets: |
         output\*.nupkg
-        output\Code Coverage Report_346\index.html
+        output\**\index.html
