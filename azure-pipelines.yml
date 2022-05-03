@@ -24,24 +24,19 @@ jobs:
   - task: NuGetToolInstaller@1
     displayName: Install NuGet
   
-  - script: dotnet --list-sdks
+  - script: dotnet restore $(solution)
+    displayName: Restore
 
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'restore'
-      projects: '$(solution)'
-      feedsToUse: 'select'
+  - script: dotnet build $(solution) -c $(buildConfiguration) --no-restore
+    displayName: Build
 
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'build'
-      projects: '$(solution)'
-      arguments: '--configuration $(buildConfiguration)'
+  - script: dotnet test $(solution) -c $(buildConfiguration) --no-build
+    displayName: Test
 
 - job: BuildRelease
   displayName: Build Release
   dependsOn: BuildDebug
-  condition: or(contains(variables['Build.SourceBranch'], 'refs/heads/release-'), contains(variables['Build.SourceBranch'], 'refs/heads/main'), contains(variables['Build.SourceBranch'], 'refs/tags/v'))
+  condition: and(succeeded(), (or(contains(variables['Build.SourceBranch'], 'refs/heads/release-'), contains(variables['Build.SourceBranch'], 'refs/heads/main'), contains(variables['Build.SourceBranch'], 'refs/tags/v')))
   variables:
     solution: '.\SimpleCalculations\SimpleCalculations.sln'
     buildPlatform: 'Any CPU'
@@ -82,7 +77,7 @@ jobs:
 - job: Publish
   displayName: NugetPush + GitHub Release
   dependsOn: BuildRelease
-  condition: contains(variables['Build.SourceBranch'], 'refs/tags/v')
+  condition: and(succeeded(), contains(variables['Build.SourceBranch'], 'refs/tags/v'))
   variables:
     solution: '.\SimpleCalculations\SimpleCalculations.sln'
     buildPlatform: 'Any CPU'
@@ -103,7 +98,7 @@ jobs:
   - script: ls
 
   - script: dotnet build $(solution) -c $(buildConfiguration)
-    displayName: Pack
+    displayName: Build $(buildConfiguration)
 
   - script: dotnet pack $(solution) -c $(buildConfiguration) -o output/
     displayName: Pack
