@@ -1,7 +1,7 @@
 trigger:
-  #branches:
-  #  include:
-  #  - '*'
+  branches:
+    include:
+    - '*'
   tags:
     include:
     - '*'
@@ -69,7 +69,7 @@ jobs:
       codeCoverageTool: 'Cobertura'
       summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
 
-  - script: ls $(Build.ArtifactStagingDirectory)/*
+  - script: ls $(Build.ArtifactStagingDirectory)
 
 - job: Publish
   displayName: NugetPush + GitHub Release
@@ -109,4 +109,4 @@ jobs:
         output\*
         $(Build.ArtifactStagingDirectory)/*
 
-    - script: ls $(Build.ArtifactStagingDirectory)/*
+    - script: ls $(Build.ArtifactStagingDirectory)
