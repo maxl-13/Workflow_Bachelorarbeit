@@ -23,6 +23,8 @@ jobs:
 
   - task: NuGetToolInstaller@1
     displayName: Install NuGet
+  
+  - script: dotnet --list-sdks
 
   - task: DotNetCoreCLI@2
     inputs:
