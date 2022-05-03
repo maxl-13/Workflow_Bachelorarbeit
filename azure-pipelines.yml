@@ -95,7 +95,7 @@ jobs:
     displayName: Nuget Push
 
   - task: DownloadPipelineArtifact@2
-      path: output\
+    path: output\
 
   - task: GitHubRelease@1
     inputs:
