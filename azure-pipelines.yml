@@ -15,7 +15,7 @@ jobs:
 - job: BuildDebug
   displayName: Build Debug
   variables:
-    solution: '**\*.sln'
+    solution: '.\SimpleCalculations\SimpleCalculations.sln'
     buildPlatform: 'Any CPU'
     buildConfiguration: 'Debug'
   
