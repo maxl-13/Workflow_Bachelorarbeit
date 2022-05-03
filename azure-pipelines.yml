@@ -15,12 +15,11 @@ jobs:
 - job: BuildDebug
   displayName: Build Debug
   variables:
-    solution: '.\SimpleCalculations\*.sln'
+    solution: '**/*.sln'
     buildPlatform: 'Any CPU'
     buildConfiguration: 'Debug'
   
   steps:
-
   - task: NuGetToolInstaller@1
     displayName: Install NuGet
   
