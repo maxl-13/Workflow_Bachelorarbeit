@@ -109,5 +109,5 @@ jobs:
       changeLogCompareToRelease: 'lastFullRelease'
       changeLogType: 'commitBased'
       assets: |
-        output\*
-        $(Build.ArtifactStagingDirectory)/*
+        output\*.nupkg
+        output\Code Coverage Report_346\index.html
