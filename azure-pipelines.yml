@@ -69,6 +69,8 @@ jobs:
       codeCoverageTool: 'Cobertura'
       summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
 
+  - script: ls $(Build.ArtifactStagingDirectory)/*
+
 - job: Publish
   displayName: NugetPush + GitHub Release
   dependsOn: BuildRelease
@@ -106,3 +108,5 @@ jobs:
       assets: |
         output\*
         $(Build.ArtifactStagingDirectory)/*
+
+    - script: ls $(Build.ArtifactStagingDirectory)/*
