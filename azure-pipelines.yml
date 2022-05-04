@@ -1,3 +1,5 @@
+name: $(Build.BuildId)_$(SourceBranchName)_$(Date:ddMMyy)
+
 trigger:
   #branches:
   #  include:

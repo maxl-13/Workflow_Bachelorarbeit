@@ -3,10 +3,12 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+name: $(Build.BuildId)_$(SourceBranchName)_$(Date:ddMMyy)
+
 trigger:
   branches:
     include:
-    - main2
+    - main
 
 
 pool:
