@@ -8,7 +8,7 @@ name: $(Build.BuildId)_$(SourceBranchName)_$(Date:ddMMyy)
 trigger:
   branches:
     include:
-    - main
+    - main2
 
 
 pool:
