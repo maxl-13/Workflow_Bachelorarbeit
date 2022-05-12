@@ -8,7 +8,7 @@ on:
       - '**'
 
 env:
-  PROJECT_PATH: ./SimpleCalculations/SimpleCalculations.sln
+  PROJECT_PATH: SimpleCalculations\SimpleCalculations.sln
   CONFIGURATION: Debug
 
 jobs:
