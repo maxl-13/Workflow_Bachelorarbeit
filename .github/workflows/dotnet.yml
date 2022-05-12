@@ -18,15 +18,14 @@ jobs:
 
     steps:
 
+    - uses: actions/checkout@v3
+
     - shell: bash
       run: |
         pwd
 
-    - shell: bash
-      run: |
-        ls
+    - run: ls
 
-    - uses: actions/checkout@v3
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
