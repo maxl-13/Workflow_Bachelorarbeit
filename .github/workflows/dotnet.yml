@@ -2,24 +2,36 @@ name: .NET
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: 
+      - '**'
+  tags:        
+      - '**'
+
+env:
+  PROJECT_PATH: ./**/*.sln
+  CONFIGURATION: Debug
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 6.0.x
+    
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore $PROJECT_PATH
+
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build $PROJECT_PATH --no-restore -c $CONFIGURATION
+
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test $PROJECT_PATH --no-build --verbosity normal
+
+
+#if: startsWith(github.ref, 'refs/tags/v')
