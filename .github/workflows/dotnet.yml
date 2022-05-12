@@ -36,7 +36,7 @@ jobs:
       run: dotnet restore SimpleCalculations\SimpleCalculations.sln
 
     - name: Build
-      run: dotnet build $PROJECT_PATH --no-restore -c $CONFIGURATION
+      run: dotnet build $PROJECT_PATH --no-restore --configuration $CONFIGURATION
 
     - name: Test
       run: dotnet test $PROJECT_PATH --no-build --verbosity normal
