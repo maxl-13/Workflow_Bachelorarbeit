@@ -33,7 +33,7 @@ jobs:
         dotnet-version: 6.0.x
     
     - name: Restore dependencies
-      run: dotnet restore $PROJECT_PATH
+      run: dotnet restore SimpleCalculations\SimpleCalculations.sln
 
     - name: Build
       run: dotnet build $PROJECT_PATH --no-restore -c $CONFIGURATION
