@@ -8,7 +8,7 @@ on:
       - '**'
 
 env:
-  PROJECT_PATH: ./**/*.sln
+  PROJECT_PATH: '.\SimpleCalculations\SimpleCalculations.sln'
   CONFIGURATION: Debug
 
 jobs:
@@ -17,6 +17,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
+
+    - script: pwd
+
     - uses: actions/checkout@v3
     
     - name: Setup .NET
