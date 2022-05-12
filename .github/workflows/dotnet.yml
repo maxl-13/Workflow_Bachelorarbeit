@@ -18,7 +18,9 @@ jobs:
 
     steps:
 
-    - script: pwd
+    - shell: bash
+      run: |
+        pwd
 
     - uses: actions/checkout@v3
     
