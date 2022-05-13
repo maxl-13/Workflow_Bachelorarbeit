@@ -46,7 +46,7 @@ jobs:
       run: reportgenerator -reports:".\SimpleCalculations\SimpleCalculations.Tests\TestResults\**\coverage.cobertura.xml" -targetdir:./coverlet/reports -reporttypes:"Cobertura"
       
     - name: Pack Package
-      if: startsWith(github.ref, 'refs/tags/v*')
+      if: startsWith(github.ref, 'refs/tags/v')
       run: |
         dotnet pack ${{ env.PROJECT_PATH }} -c ${{ env.CONFIGURATION }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }} --no-build
         dotnet nuget add source --username maxl-13 --password ${{ env.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
@@ -54,7 +54,7 @@ jobs:
 
 
     - name: Create Release
-      if: startsWith(github.ref, 'refs/tags/v*')
+      if: startsWith(github.ref, 'refs/tags/v')
       id: create_release
       uses: actions/create-release@v1
       env:
