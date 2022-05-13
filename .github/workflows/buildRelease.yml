@@ -11,6 +11,8 @@ on:
 env:
   PROJECT_PATH: SimpleCalculations\SimpleCalculations.sln
   CONFIGURATION: Release
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
+  GITHUB_TOKEN: ${{ github.token }}
 
 jobs:
   build:
@@ -43,6 +45,11 @@ jobs:
     - name: Create Report
       run: reportgenerator -reports:".\SimpleCalculations\SimpleCalculations.Tests\TestResults\**\coverage.cobertura.xml" -targetdir:./coverlet/reports -reporttypes:"Cobertura"
       
-
-
+    - name: Pack Package
+      if: startsWith(github.ref, 'refs/tags/v*')
+      run: |
+        dotnet pack ${{ env.PROJECT_PATH }} -c ${{ env.CONFIGURATION }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }} --no-build
+        dotnet nuget add source --username maxl-13 --password ${{ env.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
+        dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ env.GITHUB_TOKEN }} --source "github"
 #if: startsWith(github.ref, 'refs/tags/v*')
+
