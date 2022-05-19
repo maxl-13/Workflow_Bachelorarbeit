@@ -1,0 +1,106 @@
+kind: pipeline
+type: docker
+name: Build Debug
+
+platform:
+  os: linux
+  arch: amd64
+
+trigger:
+  event:
+    - push
+    - tag
+
+workspace:
+  path: /drone/src
+
+steps:
+  - name: prepare_variables
+    image: alpine
+    commands:
+      - echo PROJECT_PATH=./**/*.sln >> .env
+      - echo CONFIGURATION=Debug >> .env
+
+  - name: Debug Pipeline
+    image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
+
+    commands:
+      - source .env
+      - dotnet restore $PROJECT_PATH
+      - dotnet build $PROJECT_PATH --configuration $CONFIGURATION --no-restore
+      - dotnet test $PROJECT_PATH --configuration $CONFIGURATION --no-build --verbosity normal
+
+---
+#Configuration Release
+
+kind: pipeline
+type: docker
+name: Build Release + Push NuGet Package to GitHub
+
+platform:
+  os: linux
+  arch: amd64
+
+trigger:
+  branch:
+  - release-*
+  - main
+  event:
+  - push
+  - tag
+
+volumes:
+- name: package_output_vol
+  temp: {}   
+
+workspace:
+  path: /drone/src
+
+depends_on:
+- Build Debug
+
+steps:
+  - name: prepare_variables
+    image: alpine
+    commands:
+      - echo PROJECT_PATH=./**/*.sln >> .env
+      - echo CONFIGURATION=Release >> .env
+      - echo OUTPUT_PATH=/root/.nupkgs/ >> .env
+  - name: Release Pipeline
+    image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
+    commands:
+      - source .env
+      - dotnet restore $PROJECT_PATH
+      - dotnet build $PROJECT_PATH --configuration $CONFIGURATION --no-restore
+      - dotnet test $PROJECT_PATH --configuration $CONFIGURATION --no-build
+      - dotnet pack $PROJECT_PATH --configuration $CONFIGURATION --output $OUTPUT_PATH --no-restore --no-build
+    volumes:
+      - name: package_output_vol
+        path: /root/.nupkgs/
+  - name: NuGet Push 
+    image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
+    environment:
+      API_KEY:
+        from_secret: GITHUB_PACKAGES_TOKEN
+    commands:
+      - source .env
+      - dotnet nuget add source --username maxl-13 --password $API_KEY --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
+      - dotnet nuget push output\*.nupkg -k $API_KEY --source "github"
+    volumes:
+      - name: package_output_vol
+        path: /root/.nupkgs/
+    when: 
+      event: tag
+  - name: GitHub Release 
+    image: plugins/github-release
+    settings:
+      api_key: 
+        from_secret: GITHUB_PACKAGES_TOKEN
+     note: ./releaseNotes.md
+     files: /root/.nupkgs/*
+    volumes:
+      - name: package_output_vol
+        path: /root/.nupkgs/
+    when:
+      event: tag
+
