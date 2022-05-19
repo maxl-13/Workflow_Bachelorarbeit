@@ -14,11 +14,10 @@ env:
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
   GITHUB_TOKEN: ${{ github.token }}
 
-runs-on: windows-latest
-
 
 jobs:
   build_release:
+    runs-on: windows-latest
     steps:
 
     - uses: actions/checkout@v3
@@ -44,3 +43,43 @@ jobs:
       
     - name: Create Report
       run: reportgenerator -reports:".\SimpleCalculations\SimpleCalculations.Tests\TestResults\**\coverage.cobertura.xml" -targetdir:./coverlet/reports -reporttypes:"Cobertura"
+
+  GitHub Release:
+    runs-on: windows-latest
+
+  #if: startsWith(github.ref, 'refs/tags/v')
+    steps:      
+    - name: Pack Package
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        dotnet pack ${{ env.PROJECT_PATH }} -c ${{ env.CONFIGURATION }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }} --no-build
+        dotnet nuget add source --username maxl-13 --password ${{ env.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
+        dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ env.GITHUB_TOKEN }} --source "github"
+
+    - name: getVersion
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/v')
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.getVersion.outputs.VERSION }}
+        release_name: Release-${{ github.ref }}
+        body_path: ./releaseNotes.md
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      if: startsWith(github.ref, 'refs/tags/v')
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg
+        asset_name: simplecalculation.nupkg
+        asset_content_type: application/octet-stream
