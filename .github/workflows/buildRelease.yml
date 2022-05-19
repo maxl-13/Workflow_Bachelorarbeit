@@ -51,7 +51,7 @@ jobs:
     steps:      
     - name: Pack Package
       run: |
-        dotnet pack ${{ env.PROJECT_PATH }} -c ${{ env.CONFIGURATION }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }} --no-build
+        dotnet pack ${{ env.PROJECT_PATH }} -c ${{ env.CONFIGURATION }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
         dotnet nuget add source --username maxl-13 --password ${{ env.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
         dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ env.GITHUB_TOKEN }} --source "github"
 
