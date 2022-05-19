@@ -28,6 +28,3 @@ jobs:
       run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration ${{ env.CONFIGURATION }}
     - name: Test
       run: dotnet test ${{ env.PROJECT_PATH }} --no-build --verbosity normal
-
-
-#if: startsWith(github.ref, 'refs/tags/v*')

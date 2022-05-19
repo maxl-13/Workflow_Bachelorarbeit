@@ -1,6 +1,7 @@
+#Configuration Debug
 kind: pipeline
 type: docker
-name: Build Debug
+name: Debug Pipeline
 
 platform:
   os: linux
@@ -9,7 +10,6 @@ platform:
 trigger:
   event:
     - push
-    - tag
 
 workspace:
   path: /drone/src
@@ -20,22 +20,109 @@ steps:
     commands:
       - echo PROJECT_PATH=./**/*.sln >> .env
       - echo CONFIGURATION=Debug >> .env
+      - sd
 
-  - name: Debug Pipeline
+  - name: .NET Build Release
     image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
-
     commands:
       - source .env
       - dotnet restore $PROJECT_PATH
       - dotnet build $PROJECT_PATH --configuration $CONFIGURATION --no-restore
-      - dotnet test $PROJECT_PATH --configuration $CONFIGURATION --no-build --verbosity normal
+  
+  - name: .NET Test Release
+    image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
+    commands:
+      - source .env
+      - dotnet test $PROJECT_PATH --configuration $CONFIGURATION
+
 
 ---
 #Configuration Release
-
 kind: pipeline
 type: docker
-name: Build Release + Push NuGet Package to GitHub
+name: Release Pipeline
+
+platform:
+  os: linux
+  arch: amd64
+
+trigger:
+  event:
+    - push
+  branch: 
+    - main
+
+depends_on:
+- Debug Pipeline
+
+workspace:
+  path: /drone/src
+
+steps:
+  - name: prepare_variables
+    image: alpine
+    commands:
+      - echo PROJECT_PATH=./**/*.sln >> .env
+      - echo CONFIGURATION=Release >> .env
+
+  - name: .NET Build Debug
+    image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
+    commands:
+      - source .env
+      - dotnet restore $PROJECT_PATH
+      - dotnet build $PROJECT_PATH --configuration $CONFIGURATION --no-restore
+  
+  - name: .NET Test Debug
+    image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
+    commands:
+      - source .env
+      - dotnet test $PROJECT_PATH --configuration $CONFIGURATION
+
+---
+kind: pipeline
+type: docker
+name: Prepare Release
+
+platform:
+  os: linux
+  arch: amd64
+
+trigger:
+  event:
+    - promote
+  branch: 
+    - main
+
+workspace:
+  path: /drone/src
+
+steps:
+  - name: nbgv prepare release
+    image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
+    environment:
+      BOT_GITHUB_TOKEN:
+        from_secret: BOT_GITHUB_TOKEN
+      BOT_USERNAME:
+        from_secret: BOT_USERNAME
+    commands:
+      - export PATH="$PATH:/root/.dotnet/tools"
+      - dotnet tool install -g nbgv
+      - git config --global user.name $BOT_USERNAME
+      - git config --global user.email $BOT_GITHUB_TOKEN
+      - release_branch_name="release-$(nbgv get-version --variable version)"
+      - nbgv prepare-release
+      - git push --set-upstream origin main
+      - git checkout $release_branch_name
+      - git push --set-upstream origin $release_branch_name
+      - nbgv tag
+      - ver="$(nbgv get-version --variable version)"
+      - git push origin $ver
+
+
+#Configuration Release
+kind: pipeline
+type: docker
+name: Push NuGet Package and GitHub Release
 
 platform:
   os: linux
@@ -44,40 +131,74 @@ platform:
 trigger:
   branch:
   - release-*
-  - main
   event:
-  - push
   - tag
 
 volumes:
 - name: package_output_vol
-  temp: {}   
+  temp: {}
+- name: asset_output_vol
+  temp: {}
+- name: coverlet_output_vol
+  temp: {}      
 
 workspace:
   path: /drone/src
-
-depends_on:
-- Build Debug
-
+  
 steps:
   - name: prepare_variables
     image: alpine
     commands:
       - echo PROJECT_PATH=./**/*.sln >> .env
       - echo CONFIGURATION=Release >> .env
-      - echo OUTPUT_PATH=/root/.nupkgs/ >> .env
-  - name: Release Pipeline
+      - echo OUTPUT_PATH=./output >> .env
+      - echo COVERAGE_RESULTS=/root/.coverlet >> .env
+      - echo NUGET_PKG_PATH=/root/.nupkgs >> .env
+      - echo ASSET_PATH=/root/.assets >> .env
+
+  - name: .NET Build Release
     image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
     commands:
       - source .env
       - dotnet restore $PROJECT_PATH
-      - dotnet build $PROJECT_PATH --configuration $CONFIGURATION --no-restore
-      - dotnet test $PROJECT_PATH --configuration $CONFIGURATION --no-build
-      - dotnet pack $PROJECT_PATH --configuration $CONFIGURATION --output $OUTPUT_PATH --no-restore --no-build
+      - dotnet build $PROJECT_PATH --configuration $CONFIGURATION --no-restore  --output $OUTPUT_PATH/
+      - cp ./$OUTPUT_PATH/ClassLibrary1.dll $ASSET_PATH/ClassLibrary1.dll
+    volumes:
+      - name: asset_output_vol
+        path: /root/.assets
+
+  - name: .NET Test Release
+    image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
+    commands:
+      - source .env
+      - dotnet test $PROJECT_PATH --configuration $CONFIGURATION --collect:"XPlat Code Coverage" --results-directory $COVERAGE_RESULTS/
+    volumes:
+      - name: coverlet_output_vol
+        path: /root/.coverlet
+
+  - name: Create Code Coverage File
+    image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
+    commands:
+      - source .env
+      - export PATH="$PATH:/root/.dotnet/tools"
+      - dotnet tool install -g dotnet-reportgenerator-globaltool
+      - reportgenerator "-reports:$COVERAGE_RESULTS/**/coverage.cobertura.xml" -targetdir:$ASSET_PATH/reports -reporttypes:"Html"
+    volumes:
+      - name: asset_output_vol
+        path: /root/.assets
+      - name: coverlet_output_vol
+        path: /root/.coverlet
+
+  - name: .NET Pack
+    image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
+    commands:
+      - source .env
+      - dotnet pack $PROJECT_PATH --configuration $CONFIGURATION --output $NUGET_PKG_PATH/
     volumes:
       - name: package_output_vol
-        path: /root/.nupkgs/
-  - name: NuGet Push 
+        path: /root/.nupkgs
+
+  - name: .NET NuGet Push 
     image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
     environment:
       API_KEY:
@@ -88,19 +209,21 @@ steps:
       - dotnet nuget push output\*.nupkg -k $API_KEY --source "github"
     volumes:
       - name: package_output_vol
-        path: /root/.nupkgs/
-    when: 
-      event: tag
+        path: /root/.nupkgs
+
   - name: GitHub Release 
     image: plugins/github-release
     settings:
       api_key: 
         from_secret: GITHUB_PACKAGES_TOKEN
-     note: ./releaseNotes.md
-     files: /root/.nupkgs/*
+      note: ./releaseNotes.md
+    files: |
+      /root/.nupkgs/*
+      /root/.assets/reports/*
     volumes:
       - name: package_output_vol
         path: /root/.nupkgs/
+      - name: asset_output_vol
+        path: /root/.assets
     when:
       event: tag
-
