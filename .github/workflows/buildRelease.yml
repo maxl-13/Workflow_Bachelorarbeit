@@ -18,6 +18,8 @@ env:
 jobs:
   build_release:
     runs-on: windows-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
     steps:
 
     - uses: actions/checkout@v3
@@ -47,25 +49,42 @@ jobs:
   GitHub_Release:
     runs-on: windows-latest
     needs: build_release
-    if: startsWith(github.ref, 'refs/tags/v')
-    steps:      
+    #if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x   
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.PROJECT_PATH }}   
+
     - name: Pack Package
       run: |
-        dotnet pack ${{ env.PROJECT_PATH }} -c ${{ env.CONFIGURATION }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }} --no-build
+        dotnet pack ${{ env.PROJECT_PATH }} -c ${{ env.CONFIGURATION }}  --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
         dotnet nuget add source --username maxl-13 --password ${{ env.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
-        dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ env.GITHUB_TOKEN }} --source "github"
+
+
+       # dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ env.GITHUB_TOKEN }} --source "github" --skip-duplicate --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
     - name: getVersion
       id: get_version
-      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      run: echo ::set-output name=VERSION::${github.ref/refs\/tags\//}
 
+    - name: test
+      run: echo ${{ steps.get_version.outputs.VERSION }}
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.getVersion.outputs.VERSION }}
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
         release_name: Release-${{ github.ref }}
         body_path: ./releaseNotes.md
         draft: false
