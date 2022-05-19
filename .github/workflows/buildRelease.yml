@@ -48,7 +48,16 @@ jobs:
     runs-on: windows-latest
     needs: build_release
     if: startsWith(github.ref, 'refs/tags/v')
-    steps:      
+    steps:
+
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x      
     - name: Pack Package
       run: |
         pwd
