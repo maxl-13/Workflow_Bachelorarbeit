@@ -16,29 +16,29 @@ env:
 
 jobs:
   build_release:
-  runs-on: windows-latest
-  steps:
+    runs-on: windows-latest
+    steps:
 
-  - uses: actions/checkout@v3
-    with:
-      fetch-depth: 0
-  
-  - name: Setup .NET
-    uses: actions/setup-dotnet@v2
-    with:
-      dotnet-version: 6.0.x
-  
-  - name: Restore dependencies
-    run: dotnet restore ${{ env.PROJECT_PATH }}
-
-  - name: Build
-    run: dotnet build ${{ env.PROJECT_PATH }} --no-restore -c ${{ env.CONFIGURATION }}
-
-  - name: Test
-    run: dotnet test ${{ env.PROJECT_PATH }} -c ${{ env.CONFIGURATION }} --no-build --collect:"XPlat Code Coverage"
-
-  - name: Install Reportgenerator
-    run: dotnet tool install -g dotnet-reportgenerator-globaltool
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     
-  - name: Create Report
-    run: reportgenerator -reports:".\SimpleCalculations\SimpleCalculations.Tests\TestResults\**\coverage.cobertura.xml" -targetdir:./coverlet/reports -reporttypes:"Cobertura"
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.PROJECT_PATH }}
+
+    - name: Build
+      run: dotnet build ${{ env.PROJECT_PATH }} --no-restore -c ${{ env.CONFIGURATION }}
+
+    - name: Test
+      run: dotnet test ${{ env.PROJECT_PATH }} -c ${{ env.CONFIGURATION }} --no-build --collect:"XPlat Code Coverage"
+
+    - name: Install Reportgenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+      
+    - name: Create Report
+      run: reportgenerator -reports:".\SimpleCalculations\SimpleCalculations.Tests\TestResults\**\coverage.cobertura.xml" -targetdir:./coverlet/reports -reporttypes:"Cobertura"
