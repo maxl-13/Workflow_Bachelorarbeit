@@ -14,7 +14,7 @@ env:
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
   GITHUB_TOKEN: ${{ github.token }}
 
-    runs-on: windows-latest
+runs-on: windows-latest
 
 
 jobs:
