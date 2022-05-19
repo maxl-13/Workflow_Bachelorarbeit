@@ -19,7 +19,7 @@ env:
 jobs:
   build_release:
   runs-on: windows-latest
-    steps:
+  steps:
 
     - uses: actions/checkout@v3
       with:
