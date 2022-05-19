@@ -14,9 +14,11 @@ env:
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
   GITHUB_TOKEN: ${{ github.token }}
 
+runs-on: windows-latest
+
+
 jobs:
   build_release:
-    runs-on: windows-latest
     steps:
 
     - uses: actions/checkout@v3
