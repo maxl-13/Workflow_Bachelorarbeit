@@ -72,8 +72,9 @@ jobs:
 
     - name: getVersion
       id: get_version
-      #run: echo ::set-output name=VERSION::${github.ref/refs\/tags\//}
+      run: echo ::set-output name=VERSION::${github.ref/refs\/tags\//}
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      run: echo "GIT_TAG=echo $(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
     - name: test
       run: echo ${github.ref/refs\/tags\//}
@@ -83,7 +84,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.RELEASE_VERSION }}
+        tag_name: v${{ env.GIT_TAG }}
         release_name: Release-${{ github.ref }}
         #body_path: ./releaseNotes.md
         body: "test"
