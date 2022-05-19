@@ -68,16 +68,14 @@ jobs:
       run: |
         dotnet pack ${{ env.PROJECT_PATH }} -c ${{ env.CONFIGURATION }}  --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
         dotnet nuget add source --username maxl-13 --password ${{ env.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
-
-
-       # dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ env.GITHUB_TOKEN }} --source "github" --skip-duplicate --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+        dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ env.GITHUB_TOKEN }} --source "github" --skip-duplicate --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
     - name: getVersion
       id: get_version
       run: echo ::set-output name=VERSION::${github.ref/refs\/tags\//}
 
     - name: test
-      run: echo ${{ steps.get_version.outputs.VERSION }}
+      run: echo ${github.ref/refs\/tags\//}
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
