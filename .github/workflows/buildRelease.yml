@@ -14,11 +14,11 @@ env:
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
   GITHUB_TOKEN: ${{ github.token }}
 
-jobs:
-  build:
-
     runs-on: windows-latest
 
+
+jobs:
+  build_release:
     steps:
 
     - uses: actions/checkout@v3
@@ -44,7 +44,10 @@ jobs:
       
     - name: Create Report
       run: reportgenerator -reports:".\SimpleCalculations\SimpleCalculations.Tests\TestResults\**\coverage.cobertura.xml" -targetdir:./coverlet/reports -reporttypes:"Cobertura"
-      
+ 
+  GitHub Release:
+  if: startsWith(github.ref, 'refs/tags/v')
+    steps:      
     - name: Pack Package
       if: startsWith(github.ref, 'refs/tags/v')
       run: |
