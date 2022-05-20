@@ -105,7 +105,7 @@ jobs:
         asset_name: version.json
         asset_content_type: application/octet-stream
     - name: Upload Release Asset
-      id: upload-release-asset 
+      id: upload-release-asset2
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
