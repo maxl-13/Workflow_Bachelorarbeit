@@ -70,14 +70,6 @@ jobs:
         dotnet nuget add source --username maxl-13 --password ${{ env.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
         dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ env.GITHUB_TOKEN }} --source "github" --skip-duplicate
 
-
-    #- name: install nbgv
-    #  run: dotnet tool install -g nbgv
-
-    #- name: getVersion
-    #  run: echo "GIT_TAG=echo $(nbgv get-version --variable version)" >> $GITHUB_ENV
-        
-      #run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     - name: tes
       run: ${{ env.GitBuildVersion }}
 
@@ -110,6 +102,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*
+        asset_path: D:\a\Workflow_Bachelorarbeit\Workflow_Bachelorarbeit\output\
         asset_name: simplecalculation.nupkg
         asset_content_type: application/octet-stream
