@@ -92,7 +92,6 @@ jobs:
         release_name: Release-${{ env.GitBuildVersion }}
         #body_path: ./releaseNotes.md
         body: "test"
-        generate_release_notes: true
         draft: false
         prerelease: false
     - name: Upload Release Asset
@@ -102,6 +101,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: D:\a\Workflow_Bachelorarbeit\Workflow_Bachelorarbeit\output\
+        asset_path: D:\a\Workflow_Bachelorarbeit\Workflow_Bachelorarbeit\output\*.nupkg
         asset_name: simplecalculation.nupkg
         asset_content_type: application/octet-stream
