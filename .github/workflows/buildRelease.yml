@@ -71,13 +71,19 @@ jobs:
         dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ env.GITHUB_TOKEN }} --source "github" --skip-duplicate
 
     - name: getVersion
-      id: get_version
       #run: echo ::set-output name=VERSION::${github.ref/refs\/tags\//}
       #run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       run: echo "GIT_TAG=echo $(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
     - name: test
-      run: echo ${github.ref/refs\/tags\//}
+      run: echo $(git describe --tags --abbrev=0)
+
+    - name: ls
+      run: ls
+    
+    - name: ls2
+      run: ls ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
