@@ -76,6 +76,9 @@ jobs:
     - name: ls2
       run: cp ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg ./package${{ env.GitBuildVersion }}.nupkg
 
+    - name: ls
+      run: ls
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -105,6 +108,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: './*.nupkg'
+        asset_path: ./package${{ env.GitBuildVersion }}.nupkg
         asset_name: package.nupkg
         asset_content_type: application/octet-stream
