@@ -96,10 +96,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v${{ env.GIT_TAG }}
-        release_name: Release-${{ github.ref }}
+        tag_name: v${{ env.GitBuildVersion }}
+        release_name: Release-${{ env.GitBuildVersion }}
         #body_path: ./releaseNotes.md
         body: "test"
+        generate_release_notes: true
         draft: false
         prerelease: false
     - name: Upload Release Asset
