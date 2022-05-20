@@ -70,17 +70,11 @@ jobs:
         dotnet nuget add source --username maxl-13 --password ${{ env.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/maxl-13/index.json"
         dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ env.GITHUB_TOKEN }} --source "github" --skip-duplicate
 
-    - name: tes
-      run: ${{ env.GitBuildVersion }}
-
     - name: test
-      run: echo $(nbgv get-version --variable version)
-
-    - name: ls
-      run: ls
+      run: ${{ env.GitBuildVersion }}
     
     - name: ls2
-      run: ls ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg
+      run: cp ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg ./package${{ env.GitBuildVersion }}.nupkg
 
     - name: Create Release
       id: create_release
@@ -111,6 +105,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: '.\output\*.nupkg'
+        asset_path: './*.nupkg'
         asset_name: package.nupkg
         asset_content_type: application/octet-stream
