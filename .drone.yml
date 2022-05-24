@@ -217,9 +217,9 @@ steps:
       api_key: 
         from_secret: GITHUB_PACKAGES_TOKEN
       note: ./releaseNotes.md
-    files: |
-      /root/.nupkgs/*
-      /root/.assets/reports/*
+      files: |
+        /root/.nupkgs/*
+        /root/.assets/reports/*
     volumes:
       - name: package_output_vol
         path: /root/.nupkgs/
